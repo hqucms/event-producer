@@ -8,14 +8,24 @@ cd CMSSW_10_6_30/src
 cmsenv
 ```
 
-2. Submit the crab job. An example is provided in `crab_example_cfg.py`. (please launch a small number of events for testing first)
+2. Clone the repo:
 
-## Appendix
+```bash
+git clone git@github.com:hqucms/event-producer.git -b Run2UL
+cd event-producer/event_producer/crab-prod
+```
+
+4. Setup crab env and proxy:
+
+```bash
+source /cvmfs/cms.cern.ch/common/crab-setup.sh
+voms-proxy-init -rfc -voms cms -valid 192:00
+```
 
 Auto-producing CRAB config and submitting (resubmitting) jobs using a script.
 
 ```shell
-./crab.py --private-mc -p FAKEMiniAODv2_cfg.py --site T2_CH_CERN -o /store/group/cmst3/group/some/path/to/final/dist/2017/mc -t DNNTuples -i samples/mc_2017.conf -e exe.sh --script-args beginseed=0 -s EventBased -n 500 --max-units 2000000 --input-files inputs --max-memory 2500 --num-cores 1 --work-area crab_projects_2017_mc_run1 --dryrun
+./crab.py --private-mc -p FAKEMiniAODv2_cfg.py --site T2_CH_CERN -o /store/group/cmst3/group/some/path/to/final/dist/2017/mc -t RunIISummer20UL17MiniAODv2 -i samples/mc_2017.conf -e exe.sh --script-args beginseed=0 -s EventBased -n 1000 --max-units 1000000 --input-files inputs --max-memory 10000 --num-cores 4 --work-area crab_projects_2017_mc_run1 --dryrun
 ```
 
 Note:

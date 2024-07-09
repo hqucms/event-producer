@@ -30,8 +30,8 @@ _separator = '-' * 50
 
 
 def natural_sort(l):
-    convert = lambda text: int(text) if text.isdigit() else text.lower()
-    alphanum_key = lambda key: [convert(c) for c in re.split('([0-9]+)', key)]
+    def convert(text): return int(text) if text.isdigit() else text.lower()
+    def alphanum_key(key): return [convert(c) for c in re.split('([0-9]+)', key)]
     return sorted(l, key=alphanum_key)
 
 
@@ -91,7 +91,8 @@ def getDatasetSiteInfo(dataset, retry=2):
     cmd = ['dasgoclient', '-query', query, '-json']
     retry_count = 0
     while True:
-        logger.info('Querying DAS:\n  %s' % ' '.join(cmd) + '' if retry_count == 0 else '\n... retry %d ...' % retry_count)
+        logger.info('Querying DAS:\n  %s' % ' '.join(cmd) + '' if retry_count ==
+                    0 else '\n... retry %d ...' % retry_count)
         if retry_count > 0:
             time.sleep(3)
         retry_count += 1
@@ -116,7 +117,11 @@ def getDatasetSiteInfo(dataset, retry=2):
                                 on_fnal_disk = True
                             elif not site_name.startswith('T1_'):
                                 sites.append(str(rec.get('name', '')))
-            logger.info('Found %d sites for %s:\n  %s%s' % (len(sites), dataset, ','.join(sites), ',T1_US_FNAL' if on_fnal_disk else ''))
+            logger.info(
+                'Found %d sites for %s:\n  %s%s' %
+                (len(sites),
+                 dataset, ','.join(sites),
+                 ',T1_US_FNAL' if on_fnal_disk else ''))
             return on_fnal_disk, sites
 
 
@@ -151,6 +156,9 @@ def createConfig(args, dataset, private_mc=False):
     if not private_mc:
         procname, vername, ext, isMC = parseDatasetName(dataset)
     else:
+        if '@' in dataset:
+            dataset, gridpack = dataset.split('@')
+            args.input_files.append(os.path.abspath(gridpack))
         procname, vername, ext, isMC = dataset, 'PrivateMC', '', True
 
     config.General.requestName = procname[:100 - len(ext)] + ext
@@ -177,7 +185,7 @@ def createConfig(args, dataset, private_mc=False):
                 'nevent=' + str(args.units_per_job),
                 'nthread=' + str(args.num_cores),
                 'procname=' + procname
-                ] + args.script_args
+            ] + args.script_args
         else:
             _script_args = args.script_args
         if len(_script_args) > 0:
@@ -242,7 +250,8 @@ def calcLumiForRecovery(config, status_dict, work_area_rsb):
         else:
             lumiIn = LumiList(lumifile)
     else:
-        logger.info('No lumi mask for the original dataset, will use the full lumi from input dataset %s' % config.Data.inputDataset)
+        logger.info('No lumi mask for the original dataset, will use the full lumi from input dataset %s' %
+                    config.Data.inputDataset)
         lumiIn = getLumiListInValidFiles(config.Data.inputDataset, dbsurl=config.Data.inputDBS)
 
     # get lumis of the processed dataset
@@ -380,15 +389,22 @@ def status(args):
                 job_status[dirname] = '\033[1;101mUNKNOWN\033[0m'
                 continue
             try:
-                percent_finished = 100.*states['finished'] / sum(states.values())
+                percent_finished = 100. * states['finished'] / sum(states.values())
             except KeyError:
                 percent_finished = 0
-            pcts_str = ' (\033[1;%dm%.1f%%\033[0m)' % (32 if percent_finished > 90 else 34 if percent_finished > 70 else 35 if percent_finished > 50 else 31, percent_finished)
+            pcts_str = ' (\033[1;%dm%.1f%%\033[0m)' % (32
+                                                       if percent_finished > 90 else 34
+                                                       if percent_finished > 70 else 35
+                                                       if percent_finished > 50 else 31, percent_finished)
             job_status[dirname] = ret['status'] + pcts_str + '\n    ' + str(states)
             if ret['publicationEnabled']:
-                pcts_published = 100.* ret['publication'].get('done', 0) / max(sum(states.values()), 1)
-                pub_pcts_str = '\033[1;%dm%.1f%%\033[0m' % (32 if pcts_published > 90 else 34 if pcts_published > 70 else 35 if pcts_published > 50 else 31, pcts_published)
-                job_status[dirname] = job_status[dirname] + '\n    publication: ' + pub_pcts_str + ' ' + str(ret['publication'])
+                pcts_published = 100. * ret['publication'].get('done', 0) / max(sum(states.values()), 1)
+                pub_pcts_str = '\033[1;%dm%.1f%%\033[0m' % (32
+                                                            if pcts_published > 90 else 34
+                                                            if pcts_published > 70 else 35
+                                                            if pcts_published > 50 else 31, pcts_published)
+                job_status[dirname] = job_status[dirname] + '\n    publication: ' + \
+                    pub_pcts_str + ' ' + str(ret['publication'])
                 if ret['status'] == 'COMPLETED' and pcts_published != 100:
                     ret['status'] == 'PUBLISHING'
 
@@ -400,13 +416,18 @@ def status(args):
                     if ret['status'] == 'COMPLETED':
                         continue
                     # first kill the task
-                    if _confirm('Kill job %s/%s and prepare a recovery task?' % (work_area, dirname), silent_mode=args.yes):
+                    if _confirm(
+                        'Kill job %s/%s and prepare a recovery task?' % (work_area, dirname),
+                            silent_mode=args.yes):
                         runCrabCommand('kill', dir='%s/%s' % (work_area, dirname))  # FIXME
                         recovery_tasks[dirname] = {'completed': percent_finished, 'resubmit': True}
 
                 elif args.submit_recovery_task:
                     if 'KILLED' not in ret['status']:
-                        skip = _confirm('Task %s/%s is not in status KILLED, wait and submit the recovery task later?' % (work_area, dirname), silent_mode=args.yes)
+                        skip = _confirm(
+                            'Task %s/%s is not in status KILLED, wait and submit the recovery task later?' %
+                            (work_area, dirname),
+                            silent_mode=args.yes)
                         if skip:
                             continue
                     config = loadConfig(work_area, dirname)
@@ -444,9 +465,8 @@ def status(args):
                 logger.info('Resubmitting job %s for failed publication' % dirname)
                 runCrabCommand('resubmit', dir='%s/%s' % (work_area, dirname), publication=True)
 
-
         logger.info('====== Summary (%s) ======\n' % (work_area) +
-                     '\n'.join(['%s: %s' % (k, job_status[k]) for k in natural_sort(job_status.keys())]))
+                    '\n'.join(['%s: %s' % (k, job_status[k]) for k in natural_sort(job_status.keys())]))
         logger.info('%d/%d jobs completed!' % (finished, len(jobnames)))
         if len(submit_failed):
             logger.warning('Submit failed:\n%s' % '\n'.join(submit_failed))
@@ -499,14 +519,13 @@ def main():
                         default=[], nargs='*',
                         help='Specify the arguments of the executed script'
                         )
-    parser.add_argument('-s', '--splitting',
-                        default='Automatic', choices=['Automatic', 'FileBased', 'LumiBased', 'EventAwareLumiBased', 'EventBased'],
-                        help='Job splitting method. Default: %(default)s'
-                        )
-    parser.add_argument('-n', '--units-per-job',
-                        default=300, type=int,
-                        help='Units per job. The meaning depends on the splitting. Recommended default numbers: (Automatic: 300 min, LumiBased:100, EventAwareLumiBased:100000) Default: %(default)d'
-                        )
+    parser.add_argument(
+        '-s', '--splitting', default='Automatic',
+        choices=['Automatic', 'FileBased', 'LumiBased', 'EventAwareLumiBased', 'EventBased'],
+        help='Job splitting method. Default: %(default)s')
+    parser.add_argument(
+        '-n', '--units-per-job', default=300, type=int,
+        help='Units per job. The meaning depends on the splitting. Recommended default numbers: (Automatic: 300 min, LumiBased:100, EventAwareLumiBased:100000) Default: %(default)d')
     parser.add_argument('--max-units',
                         default=-1, type=int,
                         help='Max units per job. The meaning depends on the splitting. Default: %(default)d'
@@ -515,10 +534,10 @@ def main():
                         default='NanoHRT',
                         help='Output dataset tag. Default: %(default)s'
                         )
-    parser.add_argument('-j', '--json',
-                        default='https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt',
-                        help='JSON file for lumi mask. Default: %(default)s'
-                        )
+    parser.add_argument(
+        '-j', '--json',
+        default='https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt',
+        help='JSON file for lumi mask. Default: %(default)s')
     parser.add_argument('--site',
                         default='T3_US_FNALLPC',
                         help='Storage site. Default: %(default)s'
@@ -591,10 +610,9 @@ def main():
                         action='store_true', default=False,
                         help='Prepare recovery tasks. This will kill the current jobs. Default: %(default)s'
                         )
-    parser.add_argument('--submit-recovery-task',
-                        action='store_true', default=False,
-                        help='Submit recovery tasks. This will check if the original job has been killed. Default: %(default)s'
-                        )
+    parser.add_argument(
+        '--submit-recovery-task', action='store_true', default=False,
+        help='Submit recovery tasks. This will check if the original job has been killed. Default: %(default)s')
     parser.add_argument('--recovery-task-suffix',
                         default='_rsb',
                         help='Suffix for the work area of the recovery tasks. Default: %(default)s'
@@ -632,7 +650,7 @@ def main():
         killjobs(args)
         return
 
-    assert(len(args.work_area) == 1)
+    assert (len(args.work_area) == 1)
     args.work_area = args.work_area[0]
 
     submit_failed = []
@@ -664,7 +682,7 @@ def main():
 
     if len(submit_failed):
         logger.warning('Submit failed:\n%s' % '\n'.join(submit_failed))
-    duplicate_names = {name:request_names[name] for name in request_names if len(request_names[name])>1}
+    duplicate_names = {name: request_names[name] for name in request_names if len(request_names[name]) > 1}
     if len(duplicate_names):
         logger.warning('Dataset with the same request names:\n%s' % str(duplicate_names))
 

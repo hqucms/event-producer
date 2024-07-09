@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 externalLHEProducer = cms.EDProducer(
     "ExternalLHEProducer", args=cms.vstring(
-        '/eos/cms/store/cmst3/user/hqu/gridpacks/ttH/ttH_slc7_amd64_gcc700_CMSSW_10_6_30_patch1_my_ttH_ttTo2L2Nu_hdamp_NNPDF31_13TeV_M130.tgz'),
+        '__GRIDPACKDIR__/ttH_slc7_amd64_gcc700_CMSSW_10_6_30_patch1_my_ttH_ttTo2L2Nu_hdamp_NNPDF31_13TeV_M130.tgz'),
     nEvents=cms.untracked.uint32(5000),
     generateConcurrently=cms.untracked.bool(True),
     numberOfParameters=cms.uint32(1),
