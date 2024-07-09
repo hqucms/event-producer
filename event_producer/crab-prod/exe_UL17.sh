@@ -30,7 +30,7 @@ eval $(scram runtime -sh)
 # copy the fragment
 mkdir -pv $CMSSW_BASE/src/Configuration/GenProduction/python
 cp $WORKDIR/inputs/${NAME}.py $CMSSW_BASE/src/Configuration/GenProduction/python/${NAME}.py
-sed "s/__GRIDPACKDIR__/$WORKDIR/g" -i $CMSSW_BASE/src/Configuration/GenProduction/python/${NAME}.py
+sed "s@__GRIDPACKDIR__@$WORKDIR@g" -i $CMSSW_BASE/src/Configuration/GenProduction/python/${NAME}.py
 if [ ! -f "$CMSSW_BASE/src/Configuration/GenProduction/python/${NAME}.py" ]; then
   echo "Fragment copy failed"
   exit 1
