@@ -7,6 +7,7 @@ import os
 import shutil
 import re
 import logging
+import copy
 import CRABClient
 
 
@@ -153,12 +154,14 @@ def createConfig(args, dataset, private_mc=False):
     from CRABClient.UserUtilities import config
     config = config()
 
+    input_files = copy.deepcopy(args.input_files)
+
     if not private_mc:
         procname, vername, ext, isMC = parseDatasetName(dataset)
     else:
         if '@' in dataset:
             dataset, gridpack = dataset.split('@')
-            args.input_files.append(os.path.abspath(gridpack))
+            input_files.append(os.path.abspath(gridpack))
         procname, vername, ext, isMC = dataset, 'PrivateMC', '', True
 
     config.General.requestName = procname[:100 - len(ext)] + ext
@@ -174,8 +177,8 @@ def createConfig(args, dataset, private_mc=False):
     config.JobType.maxMemoryMB = args.max_memory
     if args.set_input_dataset:
         config.JobType.pyCfgParams = ['inputDataset=%s' % dataset]
-    if len(args.input_files) > 0:
-        config.JobType.inputFiles = args.input_files
+    if len(input_files) > 0:
+        config.JobType.inputFiles = input_files
     if len(args.output_files) > 0:
         config.JobType.outputFiles = args.output_files
     if args.script_exe:
