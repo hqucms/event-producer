@@ -115,5 +115,5 @@ eval $(scram runtime -sh)
 cd $WORKDIR
 
 ## for the last step, needs to run with -j FrameworkJobReport.xml
-cmsDriver.py --python_filename MiniAODv2_cfg.py --eventcontent MINIAODSIM --customise Configuration/DataProcessing/Utils.addMonitoring --datatier MINIAODSIM --fileout file:miniv2.root --conditions 106X_upgrade2018_realistic_v16_L1v1 --step PAT --procModifiers run2_miniAOD_UL --geometry DB:Extended --filein file:reco.root --era Run2_2018 --runUnscheduled --no_exec --mc --nThreads $NTHREAD -n $NEVENT || exit $?
+cmsDriver.py --python_filename MiniAODv2_cfg.py --eventcontent MINIAODSIM --customise Configuration/DataProcessing/Utils.addMonitoring --datatier MINIAODSIM --fileout file:mini.root --conditions 106X_upgrade2018_realistic_v16_L1v1 --step PAT --procModifiers run2_miniAOD_UL --geometry DB:Extended --filein file:reco.root --era Run2_2018 --runUnscheduled --no_exec --mc --nThreads $NTHREAD -n $NEVENT || exit $?
 cmsRun -j FrameworkJobReport.xml MiniAODv2_cfg.py

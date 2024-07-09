@@ -38,6 +38,6 @@ Important/additional custom arguments include:
 - `-e`: execute a custom script (we merge all steps into a single script)
 - `--script-args`: arguments sent to the script which should correspond to those booked in the script (the variables JOBNUM, NEVENT, NTHREAD, PROCNAME are hard coded by the script and should be omitted in the command)
 - `--input-files`: always send `inputs` that contain the fragment with proper names corresponding to the configuration file
-- `--output-files`: specify more files here if additional files besides the output file booked in the PSet.py (in our case is `miniv2.root`, if reading the file `FAKEMiniAODv2_cfg.py`) need to be transferred back
+- `--output-files`: specify more files here if additional files besides the output file booked in the PSet.py (in our case is `mini.root`, if reading the file `FAKEMiniAODv2_cfg.py`) need to be transferred back
 
 Remember to change the `beginseed` in our script arguments when generating a second routine.

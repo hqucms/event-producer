@@ -197,7 +197,7 @@ cmsDriver.py \
   --customise Configuration/DataProcessing/Utils.addMonitoring \
   --datatier MINIAODSIM \
   --filein "file:RunIISummer20UL17RECO_$NAME_$JOBINDEX.root" \
-  --fileout file:miniv2.root \
+  --fileout file:mini.root \
   --conditions 106X_mc2017_realistic_v9 \
   --step PAT \
   --procModifiers run2_miniAOD_UL \
